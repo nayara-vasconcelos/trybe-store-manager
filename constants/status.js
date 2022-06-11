@@ -12,7 +12,8 @@ const statusCodes = {
 };
 
 const msgStatus = {
-  msgNotFound: { message: 'Product not found' },
+  productNotFound: { message: 'Product not found' },
+  saleNotFound: { message: 'Sale not found' },
 };
 
 module.exports = {
