@@ -15,7 +15,7 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
 
-const { getAll } = require('../../../services/productsService');
+const { getAll, getById } = require('../../../services/productsService');
 const productsModel = require('../../../models/productsModel');
 
 // Função para auxiliar a verificação da ordem do array de produtos;
@@ -103,5 +103,55 @@ describe('Ao chamar o getAll do productsService', () => {
     //   expect(getIdValues(result)).to.have.ordered.members([1, 2])
     //     .but.not.have.ordered.members([2, 1]);
     // });
+  });
+});
+
+describe('Ao chamar getById do productsService', () => {
+  describe('quando não há produto com determinada id', () => {
+    const resultModel = null;
+    const invalidID = 5;
+
+    before(() => {
+      sinon.stub(productsModel, 'getById')
+        .resolves(resultModel);
+    });
+
+    after(() => {
+      productsModel.getById.restore();
+    });
+
+    it('retorna null', async () => {
+      const result = await getById(invalidID);
+      expect(result).to.be.null;
+    });
+  });
+
+  describe('quando há um produto com determinada', () => {
+    const resultModel = [{
+      id: 1,
+      name: 'produto A',
+      quantity: 10,
+    }];
+
+    const validId = 1;
+
+    before(() => {
+      sinon.stub(productsModel, 'getById')
+        .resolves(resultModel);
+    });
+
+    after(() => {
+      productsModel.getById.restore();
+    });
+
+    it('retorna um objeto', async () => {
+      const result = await getById(validId);
+      expect(result).to.be.an('object');
+    });
+
+    it('o objeto possui as propriedades "id", "name" e "quantity"', async () => {
+      const result = await getById(validId);
+      expect(result).to.include.all.keys('id', 'name', 'quantity');
+    });
   });
 });
