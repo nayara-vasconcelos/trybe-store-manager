@@ -16,7 +16,7 @@ const { expect } = require('chai');
 const sinon = require('sinon');
 
 const connection = require('../../../models/connection');
-const { getAll } = require('../../../models/productsModel');
+const { getAll, getById } = require('../../../models/productsModel');
 
 // Função para auxiliar a verificação da ordem do array de produtos;
 // const getIdValues = (arrayOfObjs) => {
@@ -108,5 +108,71 @@ describe('Ao chamar getAll do productsModel', () => {
     //   expect(getIdValues(result)).to.have.ordered.members([1, 2])
     //     .but.not.have.ordered.members([2, 1]);
     // });
+  });
+});
+
+describe('Ao chamar getById do productsModel', () => {
+  describe('quando não há produto com determinada id', () => {
+    const resultExecute = [[],[]];
+    const invalidID = 5;
+
+    before(async () => {
+      sinon.stub(connection, 'execute')
+        .resolves(resultExecute);
+    });
+
+    after(async () => {
+      connection.execute.restore();
+    });
+
+    it('retorna null', async () => {
+      const result = await getById(invalidID);
+      expect(result).to.be.null;
+    });
+  });
+
+  describe('quando há um produto com determinada id', () => {
+    const validId = 1;
+    const resultExecute = [
+      [
+        {
+          id: 1,
+          name: 'produto A',
+          quantity: 10,
+        },
+      ],
+      []
+    ];
+
+    before(async () => {
+      sinon.stub(connection, 'execute')
+        .resolves(resultExecute);
+    });
+
+    after(async () => {
+      connection.execute.restore();
+    });
+
+    it('retorna um array', async () => {
+      const result = await getById(validId);
+      expect(result).to.be.an('array');
+    });
+
+    it('o array contém apenas um item', async () => {
+      const result = await getById(validId);
+      expect(result).to.have.lengthOf(1);
+    });
+
+    it('o item é um objeto', async () => {
+      // result = array[0]
+      const [result] = await getById(validId);
+      expect(result).to.be.an('object');
+    });
+
+    it('o objeto possui as propriedades "id", "name" e "quantity"', async () => {
+      // result = array[0]
+      const [result] = await getById(validId);
+      expect(result).to.include.all.keys('id', 'name', 'quantity');
+    });
   });
 });
