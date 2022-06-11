@@ -1,5 +1,7 @@
 const connection = require('./connection');
 
+const DECIMAL = 10;
+
 const getAll = async () => {
   const query = `SELECT * FROM StoreManager.products
   ORDER BY id ASC`;
@@ -9,6 +11,16 @@ const getAll = async () => {
   return products;
 };
 
+const getById = async (id) => {
+  const query = 'SELECT * FROM StoreManager.products WHERE id = ?';
+
+  const [product] = await connection.execute(query, [parseInt(id, DECIMAL)]);
+
+  if (product.length === 0) { return null; }
+  return product;
+};
+
 module.exports = {
   getAll,
+  getById,
 };
