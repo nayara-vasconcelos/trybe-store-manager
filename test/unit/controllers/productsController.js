@@ -23,7 +23,7 @@ const { getAll, getById } = require('../../../controllers/productsController');
 const productsService = require('../../../services/productsService');
 const {
   statusCodes: { OK, NOT_FOUND },
-  msgStatus: { msgNotFound },
+  msgStatus: { productNotFound },
 } = require('./status');
 
 describe('Ao chamar getAll do productsController', () => {
@@ -141,7 +141,7 @@ describe('Ao chamar getById do productsController', () => {
     it('é chamado o método "json" com um objeto com mensagem código 404', async () => {
       await getById(request, response);
 
-      expect(response.json.calledWith(msgNotFound)).to.be.equal(true);
+      expect(response.json.calledWith(productNotFound)).to.be.equal(true);
     });
   });
 
