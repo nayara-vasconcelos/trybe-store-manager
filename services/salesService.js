@@ -5,7 +5,10 @@ const getAll = async () => {
   return sales;
 };
 
-const getById = async () => {
+const getById = async (id) => {
+  const sale = await salesModel.getById(id);
+  if (!sale) { return null; }
+  return sale;
 };
 
 module.exports = {
