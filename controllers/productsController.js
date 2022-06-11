@@ -1,7 +1,8 @@
 const productsService = require('../services/productsService');
+
 const {
   statusCodes: { OK, NOT_FOUND },
-  msgStatus: { msgNotFound },
+  msgStatus: { productNotFound },
 } = require('../constants/status');
 
 const getAll = async (_req, res) => {
@@ -14,7 +15,7 @@ const getById = async (req, res) => {
   const product = await productsService.getById(id);
 
   if (!product) {
-    return res.status(NOT_FOUND).json(msgNotFound);
+    return res.status(NOT_FOUND).json(productNotFound);
   }
 
   return res.status(OK).json(product);
