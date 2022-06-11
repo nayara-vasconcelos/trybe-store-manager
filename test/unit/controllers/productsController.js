@@ -19,9 +19,12 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
 
-const { getAll } = require('../../../controllers/productsController');
+const { getAll, getById } = require('../../../controllers/productsController');
 const productsService = require('../../../services/productsService');
-const { statusCodes: { OK } } = require('../status');
+const {
+  statusCodes: { OK, NOT_FOUND },
+  msgStatus: { msgNotFound },
+} = require('./status');
 
 describe('Ao chamar getAll do productsController', () => {
   describe('quando não existem produtos cadastrados', () => {
@@ -38,15 +41,15 @@ describe('Ao chamar getAll do productsController', () => {
 
     after(() => {
       productsService.getAll.restore();
-    })
+    });
 
-    it('é retornado uma resposta com status http 200', async () => {
+    it('é chamado o método "status" passando o código http 200', async () => {
       await getAll(request, response);
 
       expect(response.status.calledWith(OK)).to.be.equal(true);
     });
 
-    it('é retornado uma resposta com json contendo um array', async () => {
+    it('é chamado um método "json" passando um array', async () => {
       await getAll(request, response);
 
       expect(response.json.calledWith(sinon.match.array)).to.be.equal(true);
@@ -59,14 +62,14 @@ describe('Ao chamar getAll do productsController', () => {
 
     const resultService = [
       {
-        "id": 1,
-        "name": "produto A",
-        "quantity": 10
+        id: 1,
+        name: 'produto A',
+        quantity: 10
       },
       {
-        "id": 2,
-        "name": "produto B",
-        "quantity": 20
+        id: 2,
+        name: 'produto B',
+        quantity: 20
       }
     ];
 
@@ -78,28 +81,109 @@ describe('Ao chamar getAll do productsController', () => {
 
       sinon.stub(productsService, 'getAll')
         .resolves(resultService);
-    })
+    });
 
     after(() => {
       productsService.getAll.restore();
     });
 
-    it('é retornado uma resposta com status http 200', async () => {
+    it('é chamado o método "status" passando o código http 200', async () => {
       await getAll(request, response);
 
       expect(response.status.calledWith(OK)).to.be.equal(true);
     });
 
-    it('é retornado uma resposta com json contendo um array', async () => {
+    it('é chamado um método "json" passando um array', async () => {
       await getAll(request, response);
 
       expect(response.json.calledWith(sinon.match.array)).to.be.equal(true);
     });
 
-    it('é retornado uma resposta com json contendo um array de objetos', async () => {
+    it('é chamado um método "json" passando um array de objetos específicos', async () => {
       await getAll(request, response);
 
       expect(response.json.calledWith(sinon.match.array.deepEquals(resultService))).to.be.equal(true);
+    });
+  });
+});
+
+describe('Ao chamar getById do productsController', () => {
+  describe('quando não há produto com determinada id', () => {
+    const response = {};
+    const request = {};
+    const resultService = null;
+    const invalidId = 5;
+
+    before(() => {
+      request.params = { id: invalidId };
+      response.status = sinon.stub().returns(response);
+      response.json = sinon.stub().returns();
+
+      sinon.stub(productsService, 'getById').resolves(resultService);
+    });
+
+    after(() => {
+      productsService.getById.restore();
+    })
+
+    it('é chamado o método "status" passando o código http 404', async () => {
+      await getById(request, response);
+
+      expect(response.status.calledWith(NOT_FOUND)).to.be.equal(true);
+    });
+
+    it('é chamado um método "json" passando um objeto', async () => {
+      await getById(request, response);
+
+      expect(response.json.calledWith(sinon.match.object)).to.be.equal(true);
+    });
+
+    it('é chamado o método "json" com um objeto com mensagem código 404', async () => {
+      await getById(request, response);
+
+      expect(response.json.calledWith(msgNotFound)).to.be.equal(true);
+    });
+  });
+
+  describe('quando há produto com determinada id', async () => {
+    const response = {};
+    const request = {};
+    const resultService = {
+      id: 1,
+      name: 'produto A',
+      quantity: 10
+    };
+    const validId = 1;
+
+    before(() => {
+      request.params = { id: validId };
+      response.status = sinon.stub().returns(response);
+      response.json = sinon.stub().returns();
+
+      sinon.stub(productsService, 'getById').resolves(resultService);
+    });
+
+    after(() => {
+      productsService.getById.restore();
+    });
+
+    it('é chamado o método "status" passando o código http 200', async () => {
+      await getById(request, response);
+
+      expect(response.status.calledWith(OK)).to.be.equal(true);
+    });
+
+    it('é chamado um método "json" passando um objeto', async () => {
+      await getById(request, response);
+
+      expect(response.json.calledWith(sinon.match.object)).to.be.equal(true);
+    });
+
+    it('é chamado um método "json" passando um objeto com a id do parâmetro', async () => {
+      await getById(request, response);
+
+      expect(response.json.calledWith(sinon.match.has("id", validId))).to.be.equal(true);
+      expect(response.json.calledWith(resultService)).to.be.equal(true);
     });
   });
 });
