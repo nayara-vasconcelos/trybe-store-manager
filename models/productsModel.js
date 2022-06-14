@@ -29,7 +29,7 @@ const getByName = async (name) => {
 
 const create = async (name, quantity) => {
   const query = 'INSERT INTO StoreManager.products (name, quantity) VALUES (?, ?)';
-  const [product] = await connection.execute(query, [name, parseInt(quantity, DECIMAL)]);
+  const [product] = await connection.execute(query, [name, quantity]);
   const newProduct = [{ 
     id: product.insertId,
     name,
@@ -39,9 +39,19 @@ const create = async (name, quantity) => {
   return newProduct;
 };
 
+const update = async (id, name, quantity) => {
+  console.log('Update :', id, name, quantity);
+  const query = 'UPDATE StoreManager.products SET name = ?, quantity = ? WHERE id = ?';
+  await connection.execute(query, [name, quantity, parseInt(id, DECIMAL)]);
+  const updatedProduct = [{ id, name, quantity }];
+
+  return updatedProduct;
+};
+
 module.exports = {
   getAll,
   getById,
   getByName,
   create,
+  update,
 };
