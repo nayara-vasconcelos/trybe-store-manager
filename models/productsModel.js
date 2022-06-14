@@ -39,6 +39,7 @@ const create = async (name, quantity) => {
   return newProduct;
 };
 
+// Refatorar para padronizar
 const update = async (id, name, quantity) => {
   console.log('Update :', id, name, quantity);
   const query = 'UPDATE StoreManager.products SET name = ?, quantity = ? WHERE id = ?';
@@ -48,10 +49,18 @@ const update = async (id, name, quantity) => {
   return updatedProduct;
 };
 
+const deleteById = async (id) => {
+  const query = 'DELETE FROM StoreManager.products WHERE id = ?';
+  await connection.execute(query, [parseInt(id, DECIMAL)]);
+
+  return true;
+};
+
 module.exports = {
   getAll,
   getById,
   getByName,
   create,
   update,
+  deleteById,
 };
