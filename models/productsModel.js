@@ -13,9 +13,15 @@ const getAll = async () => {
 
 const getById = async (id) => {
   const query = 'SELECT * FROM StoreManager.products WHERE id = ?';
-
   const [product] = await connection.execute(query, [parseInt(id, DECIMAL)]);
 
+  if (product.length === 0) { return null; }
+  return product;
+};
+
+const getByName = async (name) => {
+  const query = 'SELECT * FROM StoreManager.products WHERE name = ?';
+  const [product] = await connection.execute(query, [name]);
   if (product.length === 0) { return null; }
   return product;
 };
@@ -23,4 +29,5 @@ const getById = async (id) => {
 module.exports = {
   getAll,
   getById,
+  getByName,
 };
