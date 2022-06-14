@@ -1,6 +1,6 @@
 const productsService = require('../services/productsService');
 
-const { OK, CREATED } = require('../constants/status');
+const { OK, CREATED, NO_CONTENT } = require('../constants/status');
 
 const getAll = async (_req, res) => {
   const products = await productsService.getAll();
@@ -32,9 +32,18 @@ const update = async (req, res, next) => {
   return res.status(OK).json(product);
 };
 
+const deleteById = async (req, res, next) => {
+  const { id } = req.params;
+  const result = await productsService.deleteById(id);
+
+  if (result.error) { return next(result.error); }
+  return res.status(NO_CONTENT).end();
+};
+
 module.exports = {
   getAll,
   getById,
   create,
   update,
+  deleteById,
 };
