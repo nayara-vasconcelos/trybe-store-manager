@@ -1,5 +1,12 @@
 const productsModel = require('../models/productsModel');
 
+// Regras de negócio:
+// Produto deve ter nome único:
+const alreadyExistsError = {
+  code: 'alreadyExists',
+  message: 'Product already exists',
+};
+
 // Outros erros:
 const notFoundError = {
   code: 'notFound',
@@ -18,7 +25,17 @@ const getById = async (id) => {
   return product[0];
 };
 
+const create = async (name, quantity) => {
+  const productExists = await productsModel.getByName(name);
+  console.log(productExists);
+  if (productExists) { return ({ error: alreadyExistsError }); }
+
+  const product = await productsModel.create(name, quantity);
+  return product[0];
+};
+
 module.exports = {
   getAll,
   getById,
+  create,
 };
