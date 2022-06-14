@@ -4,7 +4,7 @@ const validateProduct = (req, _res, next) => {
   const { name, quantity } = req.body;
 
   const { error } = productSchema.validate({ name, quantity });
-  if (error) { next(error); }
+  if (error) { return next({ message: error.details[0].message }); }
   next();
 };
 

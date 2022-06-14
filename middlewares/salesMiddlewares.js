@@ -4,7 +4,7 @@ const validateSale = (req, _res, next) => {
   const { productId, quantity } = req.body;
 
   const { error } = saleSchema.validate({ productId, quantity });
-  if (error) { next(error); }
+  if (error) { return next({ message: error.details[0].message }); }
   next();
 };
 
