@@ -33,20 +33,23 @@ const create = async (name, quantity) => {
   return product[0];
 };
 
+// Refatorado para padronizar;
 const update = async (id, name, quantity) => {
   const productExists = await productsModel.getById(id);
   if (!productExists) { return ({ error: notFoundError }); }
 
-  const product = await productsModel.update(id, name, quantity);
-  return product[0];
+  await productsModel.update(id, name, quantity);
+  const updatedProduct = { id, name, quantity };
+  return updatedProduct;
 };
 
+// Refatorado para padronizar
 const deleteById = async (id) => {
   const productExists = await productsModel.getById(id);
   if (!productExists) { return ({ error: notFoundError }); }
+  await productsModel.deleteById(id);
 
-  const wasDeleted = await productsModel.deleteById(id);
-  return wasDeleted;
+  return true;
 };
 
 module.exports = {
