@@ -11,12 +11,4 @@ const statusCodes = {
   INTERNAL_SERVER_ERROR: 500,
 };
 
-const msgStatus = {
-  productNotFound: { message: 'Product not found' },
-  saleNotFound: { message: 'Sale not found' },
-};
-
-module.exports = {
-  statusCodes,
-  msgStatus,
-};
+module.exports = statusCodes;
