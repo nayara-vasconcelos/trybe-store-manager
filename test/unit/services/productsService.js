@@ -110,6 +110,10 @@ describe('Ao chamar getById do productsService', () => {
   describe('quando não há produto com determinada id', () => {
     const resultModel = null;
     const invalidID = 5;
+    const notFoundError = {
+      code: 'notFound',
+      message: 'Product not found',
+    };
 
     before(() => {
       sinon.stub(productsModel, 'getById')
@@ -120,13 +124,28 @@ describe('Ao chamar getById do productsService', () => {
       productsModel.getById.restore();
     });
 
-    it('retorna null', async () => {
+    it('retorna um objeto', async () => {
       const result = await getById(invalidID);
-      expect(result).to.be.null;
+      expect(result).to.be.an('object');
+    });
+
+    it('o objeto possui a propriedade "error"', async () => {
+      const result = await getById(invalidID);
+      expect(result).to.include.property('error');
+    });
+
+    it('a propriedade "error" do objeto contém um objeto com chave "code" e "message"', async () => {
+      const result = await getById(invalidID);
+      expect(result).to.have.deep.property('error', notFoundError);
+    });
+
+    it('o objeto não possui as propriedades "id", "name" e "quantity"', async () => {
+      const result = await getById(invalidID);
+      expect(result).to.not.have.any.keys('id', 'name', 'quantity');
     });
   });
 
-  describe('quando há um produto com determinada', () => {
+  describe('quando há um produto com determinada id', () => {
     const resultModel = [{
       id: 1,
       name: 'produto A',

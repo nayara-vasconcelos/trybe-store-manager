@@ -77,10 +77,14 @@ describe('Ao chamar getAll do salesModel', () => {
   });
 });
 
-describe('Ao chamar getById do salesModel', () => {
+describe('Ao chamar getById do salesService', () => {
   describe('quando não há venda com determinado id', () => {
     const resultModel = null;
     const invalidID = 5;
+    const notFoundError = {
+      code: 'notFound',
+      message: 'Sale not found',
+    };
 
     before(() => {
       sinon.stub(salesModel, 'getById')
@@ -91,9 +95,24 @@ describe('Ao chamar getById do salesModel', () => {
       salesModel.getById.restore();
     });
 
-    it('retorna null', async () => {
+    it('retorna um objeto', async () => {
       const result = await getById(invalidID);
-      expect(result).to.be.null;
+      expect(result).to.be.an('object');
+    });
+
+    it('o objeto possui a propriedade "error"', async () => {
+      const result = await getById(invalidID);
+      expect(result).to.include.property('error');
+    });
+
+    it('a propriedade "error" do objeto contém um objeto com chave "code" e "message"', async () => {
+      const result = await getById(invalidID);
+      expect(result).to.have.deep.property('error', notFoundError);
+    });
+
+    it('o objeto não possui as propriedades "date", "productId" e "quantity"', async () => {
+      const result = await getById(invalidID);
+      expect(result).to.not.have.any.keys('date', 'productId', 'quantity');
     });
   });
 
