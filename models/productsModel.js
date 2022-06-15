@@ -39,14 +39,12 @@ const create = async (name, quantity) => {
   return newProduct;
 };
 
-// Refatorar para padronizar
+// Refatorado para padronizar!!!
 const update = async (id, name, quantity) => {
-  console.log('Update :', id, name, quantity);
   const query = 'UPDATE StoreManager.products SET name = ?, quantity = ? WHERE id = ?';
   await connection.execute(query, [name, quantity, parseInt(id, DECIMAL)]);
-  const updatedProduct = [{ id, name, quantity }];
 
-  return updatedProduct;
+  return true;
 };
 
 const deleteById = async (id) => {
