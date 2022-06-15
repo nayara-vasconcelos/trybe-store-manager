@@ -1,34 +1,18 @@
-// Retornar todos os produtos em GET /products
-// Se não houver produtos cadastrados:
-// retorná um array vazio.
-// Se houver produtos cadastrados:
-// retornará um array de objetos.
-// o array será ordenado pelo id
-
-// Retornar um produto em GET /products/:id
-// Se não houver produto cadastrado com id:
-// retornar null
-// Se houver:
-// Retornar um objeto
-// Objeto com as propriedades id, name, quantity
-
 const { expect } = require('chai');
 const sinon = require('sinon');
 
-const { getAll, getById } = require('../../../services/productsService');
+const { getAll, getById, create, update, deleteById } = require('../../../services/productsService');
 const productsModel = require('../../../models/productsModel');
 
-// Função para auxiliar a verificação da ordem do array de produtos;
-// const getIdValues = (arrayOfObjs) => {
-//   const ids = arrayOfObjs.map((obj) => obj.id);
-//   return ids;
-// };
+const notFoundError = {
+  code: 'notFound',
+  message: 'Product not found',
+};
 
-// numbers.sort((a, b) => a - b);
-
-// items.sort(function (a, b) {
-//   return a.value - b.value;
-// });
+const alreadyExistsError = {
+  code: 'alreadyExists',
+  message: 'Product already exists',
+};
 
 describe('Ao chamar o getAll do productsService', () => {
   describe('quando não há produtos cadastrados', () => {
@@ -96,25 +80,14 @@ describe('Ao chamar o getAll do productsService', () => {
       const [result] = await getAll();
       expect(result).to.include.all.keys('id', 'name', 'quantity');
     });
-
-    // it('o array está ordenado pela propriedade "id" dos objetos em ordem crescente', async () => {
-    //   // result = array[0]
-    //   const [result] = await getAll();
-    //   expect(getIdValues(result)).to.have.ordered.members([1, 2])
-    //     .but.not.have.ordered.members([2, 1]);
-    // });
   });
 });
 
 describe('Ao chamar getById do productsService', () => {
   describe('quando não há produto com determinada id', () => {
     const resultModel = null;
-    const invalidID = 5;
-    const notFoundError = {
-      code: 'notFound',
-      message: 'Product not found',
-    };
-
+    const invalidID = '5';
+  
     before(() => {
       sinon.stub(productsModel, 'getById')
         .resolves(resultModel);
@@ -152,7 +125,7 @@ describe('Ao chamar getById do productsService', () => {
       quantity: 10,
     }];
 
-    const validId = 1;
+    const validId = '1';
 
     before(() => {
       sinon.stub(productsModel, 'getById')
@@ -171,6 +144,212 @@ describe('Ao chamar getById do productsService', () => {
     it('o objeto possui as propriedades "id", "name" e "quantity"', async () => {
       const result = await getById(validId);
       expect(result).to.include.all.keys('id', 'name', 'quantity');
+    });
+  });
+});
+
+describe('Ao chamar create do productsService', () => {
+  describe('quando há produto cadastrado com o mesmo nome', () => {
+    const newProduct = { name: 'produto', quantity: 100 };
+    const resultModelName = [{ id: 1, name: 'produto', quantity: 100 }];
+
+    before(() => {
+      sinon.stub(productsModel, 'getByName')
+        .resolves(resultModelName);
+    });
+
+    after(() => {
+      productsModel.getByName.restore();
+    });
+
+    it('retorna um objeto', async () => {
+      const result = await create(newProduct.name, newProduct.quantity);
+      expect(result).to.be.an('object');
+    });
+
+    it('o objeto possui a propriedade "error"', async () => {
+      const result = await create(newProduct.name, newProduct.quantity);
+      expect(result).to.include.property('error');
+    });
+
+    it('a propriedade "error" do objeto contém um objeto com chave "code" e "message"', async () => {
+      const result = await create(newProduct.name, newProduct.quantity);
+      expect(result).to.have.deep.property('error', alreadyExistsError);
+    });
+
+    it('o objeto não possui as propriedades "id", "name" e "quantity"', async () => {
+      const result = await create(newProduct.name, newProduct.quantity);
+      expect(result).to.not.have.any.keys('id', 'name', 'quantity');
+    });
+  });
+
+  describe('quando não há um produto cadastrado com o mesmo nome', () => {
+    const resultModelName = null;
+    const resultModelCreate = [{ id: 1, name: 'produto', quantity: 10 }];
+    const newProduct = { name: 'produto', quantity: 10 }
+  
+    before(() => {
+      sinon.stub(productsModel, 'getByName')
+        .resolves(resultModelName);
+
+      sinon.stub(productsModel, 'create')
+        .resolves(resultModelCreate);
+    });
+
+    after(() => {
+      productsModel.getByName.restore();
+      productsModel.create.restore();
+    });
+
+    it('retorna um objeto', async () => {
+      const result = await create(newProduct.name, newProduct.quantity);
+      expect(result).to.be.an('object');
+    });
+
+    it('o objeto não possui a propriedade "error" com um objeto', async () => {
+      const result = await create(newProduct.name, newProduct.quantity);
+      expect(result).to.not.have.property('error', alreadyExistsError);
+    });
+
+    it('o objeto possui as propriedades "id", "name" e "quantity"', async () => {
+      const result = await create(newProduct.name, newProduct.quantity);
+      expect(result).to.include.all.keys('id', 'name', 'quantity');
+    });
+  });
+});
+
+describe('Ao chamar update do productsService', () => {
+  describe('quando não há produto cadastrado com determinado id', () => {
+    const updatedProduct = { id: 10, name: 'produto', quantity: 15 };
+    const resultModelId = null;
+    // const resultModelName = [{ id: 1, name: 'produto', quantity: 15 }];
+
+    before(() => {
+      sinon.stub(productsModel, 'getById')
+        .resolves(resultModelId);
+    });
+
+    after(() => {
+      productsModel.getById.restore();
+    });
+
+    it('retorna um objeto', async () => {
+      const result = await update(updatedProduct.id, updatedProduct.name, updatedProduct.quantity);
+      expect(result).to.be.an('object');
+    });
+
+    it('o objeto possui a propriedade "error"', async () => {
+      const result = await update(updatedProduct.id, updatedProduct.name, updatedProduct.quantity);
+      expect(result).to.include.property('error');
+    });
+
+    it('a propriedade "error" do objeto contém um objeto com chave "code" e "message"', async () => {
+      const result = await update(updatedProduct.id, updatedProduct.name, updatedProduct.quantity);
+      expect(result).to.have.deep.property('error', notFoundError);
+    });
+
+    it('o objeto não possui as propriedades "id", "name" e "quantity"', async () => {
+      const result = await update(updatedProduct.id, updatedProduct.name, updatedProduct.quantity);
+      expect(result).to.not.have.any.keys('id', 'name', 'quantity');
+    });
+  });
+
+  describe('quando há um produto cadastrado com determinado id', () => {
+    const resultModelId = [{ id: 1, name: 'produto', quantity: 100 }];
+    const resultModelUpdate = true;
+    const updatedProduct = { id: 1, name: 'produto', quantity: 15 }
+  
+    before(() => {
+      sinon.stub(productsModel, 'getById')
+        .resolves(resultModelId);
+
+      sinon.stub(productsModel, 'update')
+        .resolves(resultModelUpdate);
+    });
+
+    after(() => {
+      productsModel.getById.restore();
+      productsModel.update.restore();
+    });
+
+    it('retorna um objeto', async () => {
+      const result = await update(updatedProduct.id, updatedProduct.name, updatedProduct.quantity);
+      expect(result).to.be.an('object');
+    });
+
+    it('o objeto não possui a propriedade "error" com um objeto', async () => {
+      const result = await update(updatedProduct.id, updatedProduct.name, updatedProduct.quantity);
+      expect(result).to.not.have.property('error', alreadyExistsError);
+    });
+
+    it('o objeto possui as propriedades "id", "name" e "quantity"', async () => {
+      const result = await update(updatedProduct.id, updatedProduct.name, updatedProduct.quantity);
+      expect(result).to.include.all.keys('id', 'name', 'quantity');
+    });
+  });
+});
+
+describe('Ao chamar deleteById do productsService', () => {
+  describe('quando não há produto cadastrado com determinado id', () => {
+    const invalidID = 5;
+    const resultModelId = null;
+   
+    before(() => {
+      sinon.stub(productsModel, 'getById')
+        .resolves(resultModelId);
+    });
+
+    after(() => {
+      productsModel.getById.restore();
+    });
+
+    it('retorna um objeto', async () => {
+      const result = await deleteById(invalidID);
+      expect(result).to.be.an('object');
+    });
+
+    it('o objeto possui a propriedade "error"', async () => {
+      const result = await deleteById(invalidID);
+      expect(result).to.include.property('error');
+    });
+
+    it('a propriedade "error" do objeto contém um objeto com chave "code" e "message"', async () => {
+      const result = await deleteById(invalidID);
+      expect(result).to.have.deep.property('error', notFoundError);
+    });
+
+    it('o objeto não possui as propriedades "id", "name" e "quantity"', async () => {
+      const result = await deleteById(invalidID);
+      expect(result).to.not.have.any.keys('id', 'name', 'quantity');
+    });
+  });
+
+  describe('quando há um produto cadastrado com determinado id', () => {
+    const resultModelId = [{ id: 1, name: 'produto', quantity: 100 }];
+    const resultModelDelete = true;
+    const validID = 1;
+  
+    before(() => {
+      sinon.stub(productsModel, 'getById')
+        .resolves(resultModelId);
+
+      sinon.stub(productsModel, 'deleteById')
+        .resolves(resultModelDelete);
+    });
+
+    after(() => {
+      productsModel.getById.restore();
+      productsModel.deleteById.restore();
+    });
+
+    it('retorna um boolean', async () => {
+      const result = await deleteById(validID);
+      expect(result).to.be.a('boolean');
+    });
+  
+    it('o boolean é "true"', async () => {
+      const result = await deleteById(validID);
+      expect(result).to.be.true;
     });
   });
 });
