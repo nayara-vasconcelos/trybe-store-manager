@@ -3,10 +3,7 @@ const sinon = require('sinon');
 
 const { getAll, getById } = require('../../../controllers/salesController');
 const salesService = require('../../../services/salesService');
-const {
-  statusCodes: { OK, NOT_FOUND },
-  msgStatus: { saleNotFound },
-} = require('./status');
+const { OK } = require('./status');
 
 describe('Ao chamar getAll do salesController', () => {
   describe('quando não existem produtos cadastrados', () => {
