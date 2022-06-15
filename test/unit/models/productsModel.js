@@ -1,34 +1,8 @@
-// Retornar todos os produtos em GET /products
-// Se não houver produtos cadastrados:
-// retorná um array vazio.
-// Se houver produtos cadastrados:
-// retornará um array de objetos.
-// o array será ordenado pelo id
-
-// Retornar um produto em GET /products/:id
-// Se não houver produto cadastrado com id:
-// retornar null
-// Se houver:
-// Retornar um objeto
-// Objeto com as propriedades id, name, quantity
-
 const { expect } = require('chai');
 const sinon = require('sinon');
 
 const connection = require('../../../models/connection');
-const { getAll, getById } = require('../../../models/productsModel');
-
-// Função para auxiliar a verificação da ordem do array de produtos;
-// const getIdValues = (arrayOfObjs) => {
-//   const ids = arrayOfObjs.map((obj) => obj.id);
-//   return ids;
-// };
-
-// numbers.sort((a, b) => a - b);
-
-// items.sort(function (a, b) {
-//   return a.value - b.value;
-// });
+const { getAll, getById, getByName, create, update, deleteById } = require('../../../models/productsModel');
 
 describe('Ao chamar getAll do productsModel', () => {
   describe('quando não há produtos cadastrados', () => {
@@ -101,13 +75,6 @@ describe('Ao chamar getAll do productsModel', () => {
       const [result] = await getAll();
       expect(result).to.include.all.keys('id', 'name', 'quantity');
     });
-
-    // it('o array está ordenado pela propriedade "id" dos objetos em ordem crescente', async () => {
-    //   // result = array[0]
-    //   const [result] = await getAll();
-    //   expect(getIdValues(result)).to.have.ordered.members([1, 2])
-    //     .but.not.have.ordered.members([2, 1]);
-    // });
   });
 });
 
@@ -174,5 +141,162 @@ describe('Ao chamar getById do productsModel', () => {
       const [result] = await getById(validId);
       expect(result).to.include.all.keys('id', 'name', 'quantity');
     });
+  });
+});
+
+describe('Ao chamar getByName do productsModel', () => {
+  describe('quando não há produto com determinado nome', () => {
+    const resultExecute = [[],[]];
+    const invalidName = 'Batatinha123';
+
+    before(async () => {
+      sinon.stub(connection, 'execute')
+        .resolves(resultExecute);
+    });
+
+    after(async () => {
+      connection.execute.restore();
+    });
+
+    it('retorna null', async () => {
+      const result = await getByName(invalidName);
+      expect(result).to.be.null;
+    });
+  });
+
+  describe('quando há um produto com determinado nome', () => {
+    const validName = 'produto A';
+    const resultExecute = [
+      [
+        {
+          id: 1,
+          name: 'produto A',
+          quantity: 10,
+        },
+      ],
+      []
+    ];
+
+    before(async () => {
+      sinon.stub(connection, 'execute')
+        .resolves(resultExecute);
+    });
+
+    after(async () => {
+      connection.execute.restore();
+    });
+
+    it('retorna um array', async () => {
+      const result = await getByName(validName);
+      expect(result).to.be.an('array');
+    });
+
+    it('o array contém apenas um item', async () => {
+      const result = await getByName(validName);
+      expect(result).to.have.lengthOf(1);
+    });
+
+    it('o item é um objeto', async () => {
+      // result = array[0]
+      const [result] = await getByName(validName);
+      expect(result).to.be.an('object');
+    });
+
+    it('o objeto possui as propriedades "id", "name" e "quantity"', async () => {
+      // result = array[0]
+      const [result] = await getByName(validName);
+      expect(result).to.include.all.keys('id', 'name', 'quantity');
+    });
+  });
+});
+
+describe('Ao chamar create do productsModel', () => {
+  const newProduct = { name: 'produto', quantity: 100 };
+  const resultExecute = [
+    [
+      {
+        insertId: 1,
+      },
+    ],
+    []
+  ];
+
+  before(async () => {
+    sinon.stub(connection, 'execute')
+      .resolves(resultExecute);
+  });
+
+  after(async () => {
+    connection.execute.restore();
+  });
+
+  it('retorna um array', async () => {
+    const result = await create(newProduct.name, newProduct.quantity);
+    expect(result).to.be.an('array');
+  });
+
+  it('o array contém apenas um item', async () => {
+    const result = await create(newProduct.name, newProduct.quantity);
+    expect(result).to.have.lengthOf(1);
+  });
+
+  it('o item é um objeto', async () => {
+    // result = array[0]
+    const [result] = await create(newProduct.name, newProduct.quantity);
+    expect(result).to.be.an('object');
+  });
+
+  it('o objeto possui as propriedades "id", "name" e "quantity"', async () => {
+    // result = array[0]
+    const [result] = await create(newProduct.name, newProduct.quantity);
+    expect(result).to.include.all.keys('id', 'name', 'quantity');
+  });
+});
+
+describe('Ao chamar update do productsModel', () => {
+  const updatedProduct = { id: 1, name: 'produto', quantity: 15 };
+  const resultExecute = [[{}], []];
+
+  before(async () => {
+    sinon.stub(connection, 'execute')
+      .resolves(resultExecute);
+  });
+
+  after(async () => {
+    connection.execute.restore();
+  });
+
+  it('retorna um boolean', async () => {
+    const result = await update(updatedProduct.id, updatedProduct.name, updatedProduct.quantity);
+    expect(result).to.be.a('boolean');
+  });
+
+  it('o boolean é "true"', async () => {
+    const result = await update(updatedProduct.id, updatedProduct.name, updatedProduct.quantity);
+    expect(result).to.be.true;
+  });
+});
+
+describe('Ao chamar deleteById do productsModel', () => {
+  const productId = 1;
+  const resultExecute = [[{}], []];
+
+  before(async () => {
+    sinon.stub(connection, 'execute')
+      .resolves(resultExecute);
+  });
+
+  after(async () => {
+    connection.execute.restore();
+  });
+
+  it('retorna um boolean', async () => {
+    const result = await deleteById(productId);
+    expect(result).to.be.a('boolean');
+  });
+
+  it('o boolean é "true"', async () => {
+    const result = await deleteById(productId);
+    expect(result).to.be.true;
   });
 });
