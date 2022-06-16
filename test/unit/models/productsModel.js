@@ -81,7 +81,7 @@ describe('Ao chamar getAll do productsModel', () => {
 describe('Ao chamar getById do productsModel', () => {
   describe('quando não há produto com determinada id', () => {
     const resultExecute = [[],[]];
-    const invalidID = 5;
+    const invalidID = '5';
 
     before(async () => {
       sinon.stub(connection, 'execute')
@@ -99,7 +99,7 @@ describe('Ao chamar getById do productsModel', () => {
   });
 
   describe('quando há um produto com determinada id', () => {
-    const validId = 1;
+    const validId = '1';
     const resultExecute = [
       [
         {
@@ -246,15 +246,15 @@ describe('Ao chamar create do productsModel', () => {
     expect(result).to.be.an('object');
   });
 
-  it('o objeto possui as propriedades "id", "name" e "quantity"', async () => {
+  it('o objeto possui as propriedades "id"', async () => {
     // result = array[0]
     const [result] = await create(newProduct.name, newProduct.quantity);
-    expect(result).to.include.all.keys('id', 'name', 'quantity');
+    expect(result).to.have.property('id');
   });
 });
 
 describe('Ao chamar update do productsModel', () => {
-  const updatedProduct = { id: 1, name: 'produto', quantity: 15 };
+  const updatedProduct = { id: '1', name: 'produto', quantity: 15 };
   const resultExecute = [[{}], []];
 
   before(async () => {
@@ -278,7 +278,7 @@ describe('Ao chamar update do productsModel', () => {
 });
 
 describe('Ao chamar deleteById do productsModel', () => {
-  const productId = 1;
+  const productId = '1';
   const resultExecute = [[{}], []];
 
   before(async () => {
