@@ -31,7 +31,18 @@ const create = async (products) => {
   return createdSale;
 };
 
-const update = async () => {};
+const update = async (saleId, productId, quantity) => {
+  const saleExists = await salesModel.getById(saleId);
+  if (!saleExists) { return ({ error: notFoundError }); }
+
+  await salesProductsModel.update(saleId, productId, quantity);
+  const updatedSale = {
+    saleId,
+    itemUpdated: [{ productId, quantity }],
+  };
+
+  return updatedSale;
+};
 
 const deleteById = async () => {};
 
