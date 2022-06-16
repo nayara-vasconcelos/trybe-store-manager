@@ -241,46 +241,58 @@ describe('Ao chamar create do salesService', () => {
 
 describe('Ao chamar update do salesService', () => {
   describe('quando o body da requisição é preenchido corretamente', () => {
-    const validRequest = [
+    const validRequest = { saleId: '1', productId: 1, quantity: 6 }
+    const resultModelId = [
       {
+        date: '2021-09-09T04:54:29.000Z',
         productId: 1,
-        quantity: 6
+        quantity: 2
+      },
+      {
+        date: '2021-09-09T04:54:54.000Z',
+        productId: 2,
+        quantity: 2
       },
     ];
-    const resultModel = true;
+
+    const resultModelUpdate = true;
 
     before(() => {
-      sinon.stub(salesModel, 'update')
-        .resolves(resultModel);
+      sinon.stub(salesModel, 'getById')
+        .resolves(resultModelId);
+  
+      sinon.stub(salesProductsModel, 'update')
+        .resolves(resultModelUpdate);
     });
 
     after(() => {
-      salesModel.update.restore();
+      salesModel.getById.restore();
+      salesProductsModel.update.restore();
     });
 
     it('retorna um objeto', async () => {
-      const result = await update(validRequest);
+      const result = await update(validRequest.saleId, validRequest.productId, validRequest.quantity);
       expect(result).to.be.an('object');
     });
 
-    it('o objeto possui as propriedades "id", "itemUpdated"', async () => {
-      const result = await update(validRequest);
-      expect(result).to.include.all.keys('id', 'itemUpdated');
+    it('o objeto possui as propriedades "saleId", "itemUpdated"', async () => {
+      const result = await update(validRequest.saleId, validRequest.quantity);
+      expect(result).to.include.all.keys('saleId', 'itemUpdated');
     });
 
     it('a propriedade "itemUpdated" do objeto é um array', async () => {
-      const result = await update(validRequest);
+      const result = await update(validRequest.saleId, validRequest.quantity);
       expect(result).to.have.property('itemUpdated').that.is.an('array');
     });
 
-    it('a propriedade "itemUpdated" do objeto tem as propriedade "productId"', async () => {
-      const [result] = await update(validRequest);
-      expect(result).to.nested.include({'itemUpdated[0].productId': validRequest[0].productId});
+    it('a propriedade "itemUpdated" do objeto tem a propriedade "productId"', async () => {
+      const result = await update(validRequest.saleId, validRequest.productId, validRequest.quantity);
+      expect(result).to.nested.include({'itemUpdated[0].productId': validRequest.productId});
     });
 
     it('a propriedade "itemUpdated" do objeto tem as propriedade "quantity"', async () => {
-      const [result] = await update(validRequest);
-      expect(result).to.nested.include({'itemUpdated[0].quantity': validRequest[0].quantity});
+      const result = await update(validRequest.saleId, validRequest.productId, validRequest.quantity);
+      expect(result).to.nested.include({'itemUpdated[0].quantity': validRequest.quantity});
     });
   });
 });

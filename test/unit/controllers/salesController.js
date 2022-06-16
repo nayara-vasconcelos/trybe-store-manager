@@ -253,6 +253,7 @@ describe('Ao chamar update do salesController', () => {
     };
 
     before(() => {
+      request.params = { id: '1'};
       request.body = [{ productId: 1, quantity: 6 }];
       response.status = sinon.stub().returns(response);
       response.json = sinon.stub().returns();
