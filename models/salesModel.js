@@ -36,10 +36,24 @@ const getById = async (id) => {
   const [sale] = await connection.execute(query, [parseInt(id, DECIMAL)]);
   if (sale.length === 0) { return null; }
   const formattedSale = sale.map((item) => format(item));
+
   return formattedSale;
 };
+
+const create = async () => {
+  const query = 'INSERT INTO StoreManager.sales (date) VALUES (NOW())';
+
+  const [sale] = await connection.execute(query);
+  const saleId = [{ id: sale.insertId }];
+
+  return saleId;
+};
+
+const deleteById = async () => {};
 
 module.exports = {
   getAll,
   getById,
+  create,
+  deleteById,
 };
