@@ -29,11 +29,11 @@ const create = async (name, quantity) => {
   const productExists = await productsModel.getByName(name);
   if (productExists) { return ({ error: alreadyExistsError }); }
 
-  const product = await productsModel.create(name, quantity);
-  return product[0];
+  const [{ id }] = await productsModel.create(name, quantity);
+  const newProduct = { id, name, quantity };
+  return newProduct;
 };
 
-// Refatorado para padronizar;
 const update = async (id, name, quantity) => {
   const productExists = await productsModel.getById(id);
   if (!productExists) { return ({ error: notFoundError }); }
@@ -43,7 +43,6 @@ const update = async (id, name, quantity) => {
   return updatedProduct;
 };
 
-// Refatorado para padronizar
 const deleteById = async (id) => {
   const productExists = await productsModel.getById(id);
   if (!productExists) { return ({ error: notFoundError }); }
