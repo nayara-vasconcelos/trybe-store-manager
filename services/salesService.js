@@ -44,7 +44,13 @@ const update = async (saleId, productId, quantity) => {
   return updatedSale;
 };
 
-const deleteById = async () => {};
+const deleteById = async (id) => {
+  const saleExists = await salesModel.getById(id);
+  if (!saleExists) { return ({ error: notFoundError }); }
+  await salesModel.deleteById(id);
+
+  return true;
+};
 
 module.exports = {
   getAll,
