@@ -16,7 +16,17 @@ const create = async (saleId, productId, quantity) => {
   return true;
 };
 
-const update = async () => {};
+const update = async (saleId, productId, quantity) => {
+  const query = `UPDATE StoreManager.sales_products SET quantity = ?
+  WHERE (sale_id = ? AND product_id = ?)`;
+
+  await connection.execute(query, [
+    parseInt(quantity, DECIMAL),
+    parseInt(saleId, DECIMAL),
+    parseInt(productId, DECIMAL)]);
+
+  return true;
+};
 
 module.exports = {
   create,
