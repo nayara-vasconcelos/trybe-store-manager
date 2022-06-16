@@ -23,7 +23,14 @@ const create = async (req, res) => {
   return res.status(CREATED).json(createdSale);
 };
 
-const update = async () => {};
+const update = async (req, res, next) => {
+  const { id } = req.params;
+  const [{ productId, quantity }] = req.body;
+  const updatedSale = await salesService.update(id, productId, quantity);
+
+  if (updatedSale.error) { return next(updatedSale.error); }
+  return res.status(OK).json(updatedSale);
+};
 
 const deleteById = async () => {};
 
