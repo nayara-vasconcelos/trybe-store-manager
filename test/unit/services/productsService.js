@@ -148,6 +148,7 @@ describe('Ao chamar getById do productsService', () => {
   });
 });
 
+// Refatorsr para retornar apenas [{ id: 1 }] no model
 describe('Ao chamar create do productsService', () => {
   describe('quando há produto cadastrado com o mesmo nome', () => {
     const newProduct = { name: 'produto', quantity: 100 };
@@ -185,7 +186,7 @@ describe('Ao chamar create do productsService', () => {
 
   describe('quando não há um produto cadastrado com o mesmo nome', () => {
     const resultModelName = null;
-    const resultModelCreate = [{ id: 1, name: 'produto', quantity: 10 }];
+    const resultModelCreate = [{ id: 1 }];
     const newProduct = { name: 'produto', quantity: 10 }
   
     before(() => {
@@ -220,7 +221,7 @@ describe('Ao chamar create do productsService', () => {
 
 describe('Ao chamar update do productsService', () => {
   describe('quando não há produto cadastrado com determinado id', () => {
-    const updatedProduct = { id: 10, name: 'produto', quantity: 15 };
+    const updatedProduct = { id: '10', name: 'produto', quantity: 15 };
     const resultModelId = null;
     // const resultModelName = [{ id: 1, name: 'produto', quantity: 15 }];
 
@@ -257,7 +258,7 @@ describe('Ao chamar update do productsService', () => {
   describe('quando há um produto cadastrado com determinado id', () => {
     const resultModelId = [{ id: 1, name: 'produto', quantity: 100 }];
     const resultModelUpdate = true;
-    const updatedProduct = { id: 1, name: 'produto', quantity: 15 }
+    const updatedProduct = { id: '1', name: 'produto', quantity: 15 }
   
     before(() => {
       sinon.stub(productsModel, 'getById')
@@ -291,7 +292,7 @@ describe('Ao chamar update do productsService', () => {
 
 describe('Ao chamar deleteById do productsService', () => {
   describe('quando não há produto cadastrado com determinado id', () => {
-    const invalidID = 5;
+    const invalidID = '5';
     const resultModelId = null;
    
     before(() => {
@@ -327,7 +328,7 @@ describe('Ao chamar deleteById do productsService', () => {
   describe('quando há um produto cadastrado com determinado id', () => {
     const resultModelId = [{ id: 1, name: 'produto', quantity: 100 }];
     const resultModelDelete = true;
-    const validID = 1;
+    const validID = '1';
   
     before(() => {
       sinon.stub(productsModel, 'getById')
