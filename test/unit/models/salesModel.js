@@ -2,7 +2,7 @@ const { expect } = require('chai');
 const sinon = require('sinon');
 
 const connection = require('../../../models/connection');
-const { getAll, getById } = require('../../../models/salesModel');
+const { getAll, getById, create, deleteById } = require('../../../models/salesModel');
 
 describe('Ao chamar getAll do salesModel', () => {
   describe('quando não há vendas cadastradas', () => {
@@ -83,7 +83,7 @@ describe('Ao chamar getAll do salesModel', () => {
 describe('Ao chamar getById do salesModel', () => {
   describe('quando não há venda com determinado id', () => {
     const resultExecute = [[],[]];
-    const invalidID = 5;
+    const invalidID = '5';
 
     before(async () => {
       sinon.stub(connection, 'execute')
@@ -101,7 +101,7 @@ describe('Ao chamar getById do salesModel', () => {
   });
 
   describe('quando há venda com determinado id', () => {
-    const validId = 1;
+    const validId = '1';
     const resultExecute = [
       [
         {
@@ -143,5 +143,69 @@ describe('Ao chamar getById do salesModel', () => {
       const [result] = await getById(validId);
       expect(result).to.include.all.keys('date', 'productId', 'quantity');
     });
+  });
+});
+
+describe('Ao chamar create do salesModel', () => {
+  const resultExecute = [
+    [
+      {
+        insertId: 1,
+      },
+    ],
+    []
+  ];
+
+  before(async () => {
+    sinon.stub(connection, 'execute')
+      .resolves(resultExecute);
+  });
+
+  after(async () => {
+    connection.execute.restore();
+  });
+
+  it('retorna um array', async () => {
+    const result = await create();
+    expect(result).to.be.an('array');
+  });
+
+  it('o array contém apenas um item', async () => {
+    const result = await create();
+    expect(result).to.have.lengthOf(1);
+  });
+
+  it('o item é um objeto', async () => {
+    const [result] = await create();
+    expect(result).to.be.an('object');
+  });
+
+  it('o objeto possui as propriedades "id"', async () => {
+    const [result] = await create();
+    expect(result).to.have.property('id');
+  });
+});
+
+describe('Ao chamar deleteById do salesModel', () => {
+  const productId = '1';
+  const resultExecute = [[{}], []];
+
+  before(async () => {
+    sinon.stub(connection, 'execute')
+      .resolves(resultExecute);
+  });
+
+  after(async () => {
+    connection.execute.restore();
+  });
+
+  it('retorna um boolean', async () => {
+    const result = await deleteById(productId);
+    expect(result).to.be.a('boolean');
+  });
+
+  it('o boolean é "true"', async () => {
+    const result = await deleteById(productId);
+    expect(result).to.be.true;
   });
 });
