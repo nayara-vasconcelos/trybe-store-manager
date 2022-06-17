@@ -3,7 +3,12 @@ const sinon = require('sinon');
 
 const salesModel = require('../../../models/salesModel');
 const salesProductsModel = require('../../../models/salesProductsModel');
-const { getAll, getById, create, update, deleteById } = require('../../../services/salesService');
+const { 
+  getAll, getById, create, update, deleteById,
+  // verifyProductsQuantity,
+} = require('../../../services/salesService');
+
+// const salesService = { verifyProductsQuantity };
 
 const notFoundError = {
   code: 'notFound',
@@ -166,78 +171,98 @@ describe('Ao chamar getById do salesService', () => {
   });
 });
 
-describe('Ao chamar create do salesService', () => {
-  // describe('quando o id de algum produto não existe', () => {
-  //   const resultModelId = null;
-  //   const invalidID = 5;
-  //   const notFoundError = {
-  //     code: 'notFound',
-  //     message: 'Sale not found',
-  //   };
+// describe('Ao chamar create do salesService', () => {
+//   describe('quando não há quantidade suficiente de um produto no estoque', () => {
+//     const resultVerify = false;
+//     const invalidRequest = [{
+//       productId: 1,
+//       quantity: 100
+//     }];
+ 
+//     before(() => {
+//       sinon.stub(salesService, 'verifyProductsQuantity')
+//         .resolves(resultVerify);
+//     });
 
-  //   before(() => {
-  //     sinon.stub(salesModel, 'getById')
-  //       .resolves(resultModelId);
-  //   });
+//     after(() => {
+//       salesService.verifyProductsQuantity.restore();
+//     });
 
-  //   after(() => {
-  //     salesModel.getById.restore();
-  //   });
-  // });
+//     it('retorna um objeto', async () => {
+//       const result = await create(invalidRequest);
+//       expect(result).to.be.an('object');
+//     });
 
-  describe('quando o body da requisição é preenchido corretamente', () => {
-    const validRequest = [
-      {
-        productId: 1,
-        quantity: 2
-      },
-      {
-        productId: 2,
-        quantity: 5
-      },
-    ];
-    const resultSalesModel = [{ id: 1 }];
-    const resultSalesProductsModel = true;
+//     it('o objeto possui a propriedade "error"', async () => {
+//       const result = await create(invalidRequest);
+//       expect(result).to.include.property('error');
+//     });
 
-    before(() => {
-      sinon.stub(salesModel, 'create')
-        .resolves(resultSalesModel);
+//     it('a propriedade "error" do objeto contém um objeto com chave "code" e "message"', async () => {
+//       const result = await create(invalidRequest);
+//       expect(result).to.have.deep.property('error', notPermittedError);
+//     });
+//   });
 
-      sinon.stub(salesProductsModel, 'create')
-        .resolves(resultSalesProductsModel)
-    });
+//   describe('quando o body da requisição é preenchido corretamente', () => {
+//     const validRequest = [
+//       {
+//         productId: 1,
+//         quantity: 2
+//       },
+//       {
+//         productId: 2,
+//         quantity: 5
+//       },
+//     ];
+//     const resultVerify = true;
+//     const resultSalesModel = [{ id: 1 }];
+//     const resultSalesProductsModel = true;
 
-    after(() => {
-      salesModel.create.restore();
-      salesProductsModel.create.restore();
-    });
+//     before(() => {
+//       const verifyProductsQuantityStub = sinon.stub(salesService, 'verifyProductsQuantity')
+//         .resolves(resultVerify);
 
-    it('retorna um objeto', async () => {
-      const result = await create(validRequest);
-      expect(result).to.be.an('object');
-    });
+//       sinon.stub(salesModel, 'create')
+//         .resolves(resultSalesModel);
 
-    it('o objeto possui as propriedades "id", "itemsSold"', async () => {
-      const result = await create(validRequest);
-      expect(result).to.include.all.keys('id', 'itemsSold');
-    });
+//       sinon.stub(salesProductsModel, 'create')
+//         .resolves(resultSalesProductsModel)
+//     });
 
-    it('a propriedade "itemsSold" do objeto é um array', async () => {
-      const result = await create(validRequest);
-      expect(result).to.have.property('itemsSold').that.is.an('array');
-    });
+//     after(() => {
+//       verifyProductsQuantityStub.restore();
+//       salesModel.create.restore();
+//       salesProductsModel.create.restore();
+//     });
 
-    it('a propriedade "itemsSold" do objeto tem as propriedade "productId"', async () => {
-      const result = await create(validRequest);
-      expect(result).to.nested.include({'itemsSold[0].productId': validRequest[0].productId});
-    });
+//     it('retorna um objeto', async () => {
+//       const result = await create(validRequest);
+//       expect(result).to.be.an('object');
+//     });
 
-    it('a propriedade "itemsSold" do objeto tem as propriedade "quantity"', async () => {
-      const result = await create(validRequest);
-      expect(result).to.nested.include({'itemsSold[0].quantity': validRequest[0].quantity});
-    });
-  });
-});
+//     it('o objeto possui as propriedades "id", "itemsSold"', async () => {
+//       const result = await create(validRequest);
+//       expect(result).to.include.all.keys('id', 'itemsSold');
+//     });
+
+//     it('a propriedade "itemsSold" do objeto é um array', async () => {
+//       const result = await create(validRequest);
+//       expect(result).to.have.property('itemsSold').that.is.an('array');
+//     });
+
+//     it('a propriedade "itemsSold" do objeto tem as propriedade "productId"', async () => {
+//       const result = await create(validRequest);
+//       expect(result).to.nested.include({'itemsSold[0].productId': validRequest[0].productId});
+//     });
+
+//     it('a propriedade "itemsSold" do objeto tem as propriedade "quantity"', async () => {
+//       const result = await create(validRequest);
+//       console.log(result);
+//       expect(result).to.nested.include({'itemsSold[0].quantity': validRequest[0].quantity});
+//     });
+//   });
+// });
 
 describe('Ao chamar update do salesService', () => {
   describe('quando o body da requisição é preenchido corretamente', () => {
