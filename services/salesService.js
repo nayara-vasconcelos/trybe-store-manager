@@ -1,10 +1,38 @@
 const salesModel = require('../models/salesModel');
 const salesProductsModel = require('../models/salesProductsModel');
+const productsService = require('./productsService');
 
-// Outros erros
+// Erros:
 const notFoundError = {
   code: 'notFound',
   message: 'Sale not found',
+};
+
+const notPermittedError = {
+  code: 'notPermitted',
+  message: 'Such amount is not permitted to sell',
+};
+
+// Atualizar a quantidade do produto ao fazer uma venda
+
+// Validar a quantidade do produto:
+// 1) para cada venda, promise.all para criar um array de objetos de produto
+// 2) Verificar se um produto não tem a quantidade necessária
+// 3) Se tiver, prosseguir com a venda
+// 4) Se não tiver, enviar error not permitted.
+
+const verifyProductsQuantity = async (products) => {
+  const productsBD = await Promise.all(products
+    .map((product) => productsService.getById(product.productId)));
+
+  // Falta verificar se produto existe
+  // Se for null, retorna o erro id not Found
+  // Se for invalido, retorna o erro not Permitted
+  // Se estiver tudo ok, retorna true
+  const isValid = productsBD
+    .every((productBD, i) => productBD.quantity > products[i].quantity);
+
+  return isValid;
 };
 
 const getAll = async () => {
@@ -19,6 +47,9 @@ const getById = async (id) => {
 };
 
 const create = async (products) => {
+  const isValid = await verifyProductsQuantity(products);
+  if (!isValid) { return ({ error: notPermittedError }); }
+
   const [newSale] = await salesModel.create();
   await Promise.all(products
     .map((product) => salesProductsModel
@@ -58,4 +89,5 @@ module.exports = {
   create,
   update,
   deleteById,
+  verifyProductsQuantity,
 };

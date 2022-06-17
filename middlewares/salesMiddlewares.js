@@ -23,7 +23,6 @@ const { saleSchema } = require('../schemas/saleSchema');
 const validateSale = (req, _res, next) => {
   const orders = req.body;
   const { error } = saleSchema.validate(orders);
-  console.log(error);
 
   if (error) {
     const message = `"${(error.details[0].message).slice(5)}`;

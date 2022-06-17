@@ -9,6 +9,7 @@ const {
 const statusByErrorCode = {
   notFound: NOT_FOUND,
   alreadyExists: CONFLICT,
+  notPermitted: UNPROCESSABLE_ENTITY,
 };
 
 const handleErrors = (err, _req, res, _next) => {
@@ -16,6 +17,8 @@ const handleErrors = (err, _req, res, _next) => {
     return res.status(err.status).json({ message: err.message });
   }
 
+  // Necessário corrigir!!! - mostrou um erro que não deveria ao digitar query errada
+  // O erro tinha uma key code
   if (err.code) {
     const status = statusByErrorCode[err.code] || INTERNAL_SERVER_ERROR;
     return res.status(status).json({ message: err.message });
