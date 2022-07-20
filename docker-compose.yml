@@ -33,8 +33,8 @@ services:
       - 3000:3000
     # Configura as variáveis de ambiente dentro do container
     environment:
-      MYSQL_USER: root
-      MYSQL_PASSWORD: password
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_HOST: db # Nome do service logo abaixo
       PORT: '3000'
 
@@ -43,7 +43,7 @@ services:
     container_name: store_manager_db
     image: mysql:5.7
     environment:
-      MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       # Garanta que não haverá conflitos de porta com um banco que esteja
       # rodando localmente
@@ -55,6 +55,9 @@ networks:
   default:
     # Dá um nome específico à rede padrão
     name: store_manager_net
+
+
+# Atenção: Esse arquivo foi criado pelo time de instrução da Trybe e modificado por Nayara V.
 
 # As chaves `tty`, `stdin_open` e `command` fazem com que o container fique
 # rodando em segundo plano, bem como tornam possível o uso do comando
