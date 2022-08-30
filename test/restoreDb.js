@@ -1,3 +1,5 @@
+// Arquivo de autoria da Trybe.
+
 const Importer = require("mysql-import");
 require("dotenv").config();
 

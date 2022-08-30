@@ -1,3 +1,5 @@
+// Código desenvolvido pela Trybe.
+
 const app = require('./app');
 require('dotenv').config();
 
